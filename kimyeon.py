@@ -167,7 +167,7 @@ else:
     st.write(f"전 세계 모든 사람이 당신처럼 생활한다면, 지구의 평균 기온은 약 **{temperature_rise}도** 상승할 것으로 예상됩니다!")
     
     # 결과 이미지 보여주기
-    st.image(result_img_url, caption="예상되는 미래의 모습", width=300)
+    st.image(result_img_url, width=300)
 
     if result_effect:
         result_effect()
