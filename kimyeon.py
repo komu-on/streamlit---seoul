@@ -164,7 +164,7 @@ else:
 
     st.success("🎉 모든 질문에 답변했습니다. 결과 확인하기 🎉")
     st.subheader(f"최종 탄소 점수: {score}점")
-    st.write(f"전 세계 모든 사람이 당신처럼 생활한다면, 지구의 평균 기온은 약 **{temperature_rise}도** 상승할 것으로 예상됩니다!")
+    st.write(f"전 세계 모든 사람이 당신처럼 생활한다면, 지구의 평균 기온은 약 **{temperature_rise}도** 상승합니다!")
     
     # 결과 이미지 보여주기
     st.image(result_img_url, width=300)
