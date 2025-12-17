@@ -126,23 +126,23 @@ else:
 
     # 결과 데이터를 구조화하여 관리
     result_data = [
-        {"range": (0, 184), "temp": 1, "effect": st.balloons, "keyword": "nature", "message": """
+        {"range": (0, 184), "temp": 1, "effect": st.balloons, "img_url": "https://img.icons8.com/fluency/480/thermometer.png", "message": """
         그 결과, 북극의 얼음이 녹는 속도가 빨라져 북극곰이 멸종 위기에 놓입니다.
         폭염, 산불, 홍수 등의 이상기후가 발생합니다.🌱
         """},
-        {"range": (185, 260), "temp": 2, "effect": st.snow, "keyword": "flood", "message": """
+        {"range": (185, 260), "temp": 2, "effect": st.snow, "img_url": "https://img.icons8.com/fluency/480/sea-waves.png", "message": """
         그 결과, 그린란드 전체가 녹아 저지대의 주요 도시가 바다에 잠기고 열사병으로 사망하는 환자들이 수십만 명이 됩니다.
         식량 부족 현상으로 인간은 물론 동물 사료 공급도 위기입니다.😥
         """},
-        {"range": (261, 340), "temp": 3, "effect": st.snow, "keyword": "desert", "message": """
+        {"range": (261, 340), "temp": 3, "effect": st.snow, "img_url": "https://img.icons8.com/fluency/480/desert.png", "message": """
         그 결과, 죽음의 문턱. 극도로 위험한 살인적인 폭염과 습도로 인해
         지구의 폐, 아마존이 사라집니다.
         전세계적 식량 부족으로 분쟁이 발생하고 문명이 붕괴됩니다.😨
         """},
-        {"range": (341, 500), "temp": 4, "effect": st.snow, "keyword": "storm", "message": """
+        {"range": (341, 500), "temp": 4, "effect": st.snow, "img_url": "https://img.icons8.com/fluency/480/tsunami.png", "message": """
         그 결과, 남극의 빙하가 붕괴되어 아프리카, 호주, 미국이 물에 잠깁니다.😱😱
         """},
-        {"range": (501, float('inf')), "temp": 5, "effect": st.snow, "keyword": "apocalypse", "message": """
+        {"range": (501, float('inf')), "temp": 5, "effect": st.snow, "img_url": "https://img.icons8.com/fluency/480/skull.png", "message": """
         그 결과, 지구상 생명체의 종말에 가까워집니다.
         극지방이 녹아내리고 인간 사회가 알고 있던 지구의 모습은 거의 없는 비인간적이고 폭력적인 세계가 됩니다.☠️☠️
         """}
@@ -151,7 +151,7 @@ else:
     temperature_rise = 0
     result_message = ""
     result_effect = None
-    result_keyword = "earth"
+    result_img_url = "https://img.icons8.com/fluency/480/thermometer.png"
 
     for data in result_data:
         min_score, max_score = data["range"]
@@ -159,7 +159,7 @@ else:
             temperature_rise = data["temp"]
             result_message = data["message"]
             result_effect = data["effect"]
-            result_keyword = data["keyword"]
+            result_img_url = data["img_url"]
             break
 
     st.success("🎉 모든 질문에 답변했습니다. 결과 확인하기 🎉")
@@ -167,7 +167,7 @@ else:
     st.write(f"전 세계 모든 사람이 당신처럼 생활한다면, 지구의 평균 기온은 약 **{temperature_rise}도** 상승할 것으로 예상됩니다!")
     
     # 결과 이미지 보여주기
-    st.image(f"https://loremflickr.com/800/600/{result_keyword}", caption="예상되는 미래의 모습")
+    st.image(result_img_url, caption="예상되는 미래의 모습", width=300)
 
     if result_effect:
         result_effect()
