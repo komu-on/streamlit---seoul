@@ -1,4 +1,5 @@
 import streamlit as st 
+import time
 
 questions = [
     {
@@ -78,6 +79,10 @@ if 'game_over' not in st.session_state:
     st.session_state.game_over = False
 if 'game_started' not in st.session_state:
     st.session_state.game_started = False
+if 'show_loading' not in st.session_state:
+    st.session_state.show_loading = False
+if 'show_reference' not in st.session_state:
+    st.session_state.show_reference = False
 
 # 시작 화면
 if not st.session_state.game_started:
@@ -103,6 +108,7 @@ elif not st.session_state.game_over:
                 st.session_state.question_index += 1
                 if st.session_state.question_index >= len(questions):
                     st.session_state.game_over = True
+                    st.session_state.show_loading = True
                 st.rerun()
     
     st.progress((st.session_state.question_index) / len(questions))
@@ -110,6 +116,12 @@ elif not st.session_state.game_over:
 
 # 모든 질문에 답했을 경우 (게임 종료)
 else:
+    if st.session_state.show_loading:
+        with st.spinner('결과를 확인해봅시다...'):
+            time.sleep(3)
+        st.session_state.show_loading = False
+        st.rerun()
+
     score = st.session_state.carbon_score
 
     # 결과 데이터를 구조화하여 관리
@@ -128,11 +140,11 @@ else:
         전세계적 식량 부족으로 분쟁이 발생하고 문명이 붕괴됩니다.😨
         """},
         {"range": (341, 500), "temp": 4, "effect": st.snow, "keyword": "storm", "message": """
-        그 결과, 남극의 빙하가 붕괴되어 아프리카, 호주, 미국이 물에 잠깁니다.😱
+        그 결과, 남극의 빙하가 붕괴되어 아프리카, 호주, 미국이 물에 잠깁니다.😱😱
         """},
         {"range": (501, float('inf')), "temp": 5, "effect": st.snow, "keyword": "apocalypse", "message": """
         그 결과, 지구상 생명체의 종말에 가까워집니다.
-        극지방이 녹아내리고 인간 사회가 알고 있던 지구의 모습은 거의 없는 비인간적이고 폭력적인 세계가 됩니다.☠️
+        극지방이 녹아내리고 인간 사회가 알고 있던 지구의 모습은 거의 없는 비인간적이고 폭력적인 세계가 됩니다.☠️☠️
         """}
     ]
 
@@ -161,10 +173,29 @@ else:
         result_effect()
     st.write(result_message)
     
+    if st.button("다른 결과 확인하기"):
+        st.session_state.show_reference = not st.session_state.show_reference
+
+    if st.session_state.show_reference:
+        st.divider()
+        st.subheader("🌡️ 지구 온도 상승별 변화")
+        col1, col2 = st.columns([1, 3])
+        with col1:
+            st.image("https://cdn-icons-png.flaticon.com/512/808/808602.png", caption="지구 온도계")
+        with col2:
+            st.markdown("""
+            * **1도 (0~184점)**: 집중호우, 한파 등 기상 현상 증가
+            * **2도 (185~260점)**: 적도지방 주요 도시 거주 불가능
+            * **3도 (261~340점)**: 아마존 열대우림 파괴, 남부유럽 가뭄
+            * **4도 (341~500점)**: 남극의 빙하붕괴, 아프리카, 호주, 미국 침수
+            * **5도 (501~620점)**: 대부분 생물체 대멸종
+            """)
+
     if st.button("다시 시작하기"):
         # 게임 상태를 초기값으로 재설정
         st.session_state.carbon_score = 0
         st.session_state.question_index = 0
         st.session_state.game_over = False
         st.session_state.game_started = False
+        st.session_state.show_reference = False
         st.rerun()
