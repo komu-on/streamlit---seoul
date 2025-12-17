@@ -1,6 +1,8 @@
 import streamlit as st 
 import time
 
+# 게임에 사용될 질문 리스트 정의
+# 각 질문에는 선택지와 해당 선택지를 골랐을 때 올라가는 탄소 점수가 포함됨
 questions = [
     {
         "question": "시간이 나면 뭐 하지?",
@@ -68,54 +70,68 @@ questions = [
     }
 ]
 
+# 웹 페이지의 탭 제목과 메인 타이틀 설정
 st.title("🌍기후 위기 밸런스 게임🌍")
 
-# session_state 초기화
+# Streamlit은 상호작용 시 코드가 재실행되므로, 
+# 변수 값이 초기화되지 않고 유지되도록 session_state를 사용해 상태 변수들을 초기화함
 if 'carbon_score' not in st.session_state:
-    st.session_state.carbon_score = 0
+    st.session_state.carbon_score = 0 # 사용자의 총 탄소 점수 저장
 if 'question_index' not in st.session_state:
-    st.session_state.question_index = 0
+    st.session_state.question_index = 0 # 현재 몇 번째 질문인지 저장
 if 'game_over' not in st.session_state:
-    st.session_state.game_over = False
+    st.session_state.game_over = False # 게임 종료 여부 확인
 if 'game_started' not in st.session_state:
-    st.session_state.game_started = False
+    st.session_state.game_started = False # 게임 시작 여부 확인 (시작 화면 제어용)
 if 'show_loading' not in st.session_state:
-    st.session_state.show_loading = False
+    st.session_state.show_loading = False # 결과 화면 전 로딩 표시 여부
 if 'show_reference' not in st.session_state:
-    st.session_state.show_reference = False
+    st.session_state.show_reference = False # 결과 화면에서 '다른 결과 보기'
 
-# 시작 화면
+# 1. 시작 화면 구성
+# 게임이 아직 시작되지 않은 상태(game_started가 False)일 때 사용자에게 보여지는 화면
 if not st.session_state.game_started:
     st.write("전 지구인이 당신처럼 산다면 지구 평균 기온은 몇 도나 올라가나요?")
     st.caption("주의! 정답일 것 같은 것을 누르지 말고 진짜 내 평소 모습 반영하기")
+    
+    # '시작하기' 버튼을 누르면 게임 상태를 시작됨(True)으로 변경하고 화면을 다시 로드함
     if st.button("시작하기"):
         st.session_state.game_started = True
         st.rerun()
 
-# 게임이 진행 중일 경우
+# 2. 게임 진행 화면 
+# 게임이 시작되었고 아직 끝나지 않은 경우 실행됨
 elif not st.session_state.game_over:
-    # 현재 질문 정보 가져오기
+    # 현재 진행 순서(question_index)에 맞는 질문 데이터를 가져와서 화면에 표시
     current_q = questions[st.session_state.question_index]
     st.subheader(f"질문 {st.session_state.question_index + 1}")
     st.write(current_q["question"])
 
-    # 답변 버튼 생성
+    # 선택지 버튼을 가로로 배치
     cols = st.columns(len(current_q["options"]))
+    
+    # 각 선택지 버튼 생성 및 클릭 처리
     for i, (option, score) in enumerate(current_q["options"].items()):
         with cols[i]:
+            # 버튼을 클릭하면 해당 점수를 누적하고 다음 질문으로 넘어감
             if st.button(option, key=f"opt_{i}"):
                 st.session_state.carbon_score += score
                 st.session_state.question_index += 1
+                
+                # 마지막 질문까지 다 풀었으면 게임 종료 상태로 변경하고 로딩 화면을 활성화함
                 if st.session_state.question_index >= len(questions):
                     st.session_state.game_over = True
                     st.session_state.show_loading = True
-                st.rerun()
+                st.rerun() # 화면을 갱신하여 다음 질문이나 결과 화면을 보여줌
     
+    # 현재 진행 상황을 시각적인 진행률 바로 표시
     st.progress((st.session_state.question_index) / len(questions))
     st.write(f"현재까지의 탄소 점수: {st.session_state.carbon_score}")
 
-# 모든 질문에 답했을 경우 (게임 종료)
+# 3. 결과 화면
+# 모든 질문이 끝났을 때(game_over가 True) 실행됨
 else:
+    # 결과 계산 전, 3초간 로딩 화면을 보여줌줌
     if st.session_state.show_loading:
         with st.spinner('결과를 확인해봅시다...'):
             time.sleep(3)
@@ -124,7 +140,8 @@ else:
 
     score = st.session_state.carbon_score
 
-    # 결과 데이터를 구조화하여 관리
+    # 점수 구간별 결과 메시지, 이미지, 효과 등을 정의한 데이터 리스트
+    # 이 데이터를 순회하며 사용자의 점수에 맞는 결과를 찾음
     result_data = [
         {"range": (0, 184), "temp": 1, "effect": st.balloons, "img_url": "https://img.icons8.com/fluency/480/thermometer.png", "message": """
         그 결과, 북극의 얼음이 녹는 속도가 빨라져 북극곰이 멸종 위기에 놓입니다.
@@ -153,6 +170,7 @@ else:
     result_effect = None
     result_img_url = "https://img.icons8.com/fluency/480/thermometer.png"
 
+    # 사용자의 점수(score)가 어느 범위(range)에 속하는지 확인하여 결과 변수 설정
     for data in result_data:
         min_score, max_score = data["range"]
         if min_score <= score <= max_score:
@@ -162,20 +180,24 @@ else:
             result_img_url = data["img_url"]
             break
 
+    # 최종 결과 화면 출력
     st.success("🎉 모든 질문에 답변했습니다. 결과 확인하기 🎉")
     st.subheader(f"최종 탄소 점수: {score}점")
-    st.write(f"전 세계 모든 사람이 당신처럼 생활한다면, 지구의 평균 기온은 약 **{temperature_rise}도** 상승합니다!")
+    st.write(f"전 세계 모든 사람이 당신처럼 생활한다면, 지구의 평균 기온은 약 **{temperature_rise}도** 상승할 것으로 예상됩니다!")
     
-    # 결과 이미지 보여주기
+    # 결과에 맞는 이미지 표시
     st.image(result_img_url, width=300)
 
+    # 풍선이나 눈 내리는 효과 실행
     if result_effect:
         result_effect()
     st.write(result_message)
     
+    # '다른 결과 확인하기' 버튼 클릭 시 상세 정보창 토글 (보이기/숨기기)
     if st.button("다른 결과 확인하기"):
         st.session_state.show_reference = not st.session_state.show_reference
 
+    # 상세 정보창이 켜져있을 경우(True), 온도별 변화 내용을 시각적으로 보여줌
     if st.session_state.show_reference:
         st.divider()
         st.subheader("🌡️ 지구 온도 상승별 변화")
@@ -191,6 +213,7 @@ else:
             * **5도 (501~620점)**: 대부분 생물체 대멸종
             """)
 
+    # '다시 시작하기' 버튼 클릭 시 모든 상태 변수를 초기화하여 게임을 처음부터 다시 시작함
     if st.button("다시 시작하기"):
         # 게임 상태를 초기값으로 재설정
         st.session_state.carbon_score = 0
